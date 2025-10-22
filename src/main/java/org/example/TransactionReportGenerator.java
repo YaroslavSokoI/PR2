@@ -4,23 +4,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collections;
 
-public class TransactionReportGenerator {
-    public void printBalanceReport(double totalBalance) {
+public abstract class TransactionReportGenerator {
+    public static void printBalanceReport(double totalBalance) {
         System.out.println("Загальний баланс: " + totalBalance);
     }
 
-    public void printTransactionsCountByMonth(String monthYear, int count) {
+    public static void printTransactionsCountByMonth(String monthYear, int count) {
         System.out.println("Кількість транзакцій за " + monthYear + ": " + count);
     }
 
-    public void printTopExpensesReport(List<Transaction> topExpenses) {
+    public static void printTopExpensesReport(List<Transaction> topExpenses) {
         System.out.println("10 найбільших витрат:");
         for (Transaction expense : topExpenses) {
             System.out.println(expense.getDescription() + ": " + expense.getAmount());
         }
     }
 
-    public void printExpenseSummaryReport(Map<String, Double> byCategory, Map<String, Double> byMonth, double symbolValue) {
+    public static void printExpenseSummaryReport(Map<String, Double> byCategory, Map<String, Double> byMonth, double symbolValue) {
         System.out.println("\n--- Текстовий звіт по витратах ---");
         System.out.println("Кожен символ (*) = " + symbolValue + " грн.");
 
@@ -41,7 +41,7 @@ public class TransactionReportGenerator {
         }
     }
 
-    private String generateStars(double amount, double symbolValue) {
+    private static String generateStars(double amount, double symbolValue) {
         long starCount = Math.round(Math.abs(amount) / symbolValue);
         if (starCount == 0 && Math.abs(amount) > 0) {
             starCount = 1;

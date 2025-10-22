@@ -5,20 +5,13 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class TransactionAnalyzer {
-    private List<Transaction> transactions;
-    private DateTimeFormatter dateFormatter;
+public abstract class TransactionAnalyzer {
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-    public TransactionAnalyzer(List<Transaction> transactions) {
-        this.transactions = transactions;
-        this.dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-    }
-
-    public double calculateTotalBalance() {
+    public static double calculateTotalBalance(List<Transaction> transactions) {
         double balance = 0;
         for (Transaction transaction : transactions) {
             balance += transaction.getAmount();
@@ -26,19 +19,23 @@ public class TransactionAnalyzer {
         return balance;
     }
 
-    public int countTransactionsByMonth(String monthYear) {
+    public static int countTransactionsByMonth(List<Transaction> transactions, String monthYear) {
         int count = 0;
         for (Transaction transaction : transactions) {
-            LocalDate date = LocalDate.parse(transaction.getDate(), dateFormatter);
-            String transactionMonthYear = date.format(DateTimeFormatter.ofPattern("MM-yyyy"));
-            if (transactionMonthYear.equals(monthYear)) {
-                count++;
+            try {
+                LocalDate date = LocalDate.parse(transaction.getDate(), dateFormatter);
+                String transactionMonthYear = date.format(DateTimeFormatter.ofPattern("MM-yyyy"));
+                if (transactionMonthYear.equals(monthYear)) {
+                    count++;
+                }
+            } catch (Exception e) {
+                System.err.println("Неправильний формат дати для: " + transaction.getDate());
             }
         }
         return count;
     }
 
-    public List<Transaction> findTopExpenses() {
+    public static List<Transaction> findTopExpenses(List<Transaction> transactions) {
         return transactions.stream()
                 .filter(t -> t.getAmount() < 0)
                 .sorted(Comparator.comparing(Transaction::getAmount))
@@ -46,7 +43,7 @@ public class TransactionAnalyzer {
                 .collect(Collectors.toList());
     }
 
-    private boolean isDateInPeriod(Transaction transaction, LocalDate startDate, LocalDate endDate) {
+    private static boolean isDateInPeriod(Transaction transaction, LocalDate startDate, LocalDate endDate) {
         try {
             LocalDate date = LocalDate.parse(transaction.getDate(), dateFormatter);
             return !date.isBefore(startDate) && !date.isAfter(endDate);
@@ -56,29 +53,29 @@ public class TransactionAnalyzer {
         }
     }
 
-    public List<Transaction> findTransactionsInPeriod(LocalDate startDate, LocalDate endDate) {
+    public static List<Transaction> findTransactionsInPeriod(List<Transaction> transactions, LocalDate startDate, LocalDate endDate) {
         return transactions.stream()
                 .filter(t -> isDateInPeriod(t, startDate, endDate))
                 .collect(Collectors.toList());
     }
 
-    public List<Transaction> findLargestExpensesByPeriod(LocalDate startDate, LocalDate endDate, int limit) {
-        return findTransactionsInPeriod(startDate, endDate).stream()
+    public static List<Transaction> findLargestExpensesByPeriod(List<Transaction> transactions, LocalDate startDate, LocalDate endDate, int limit) {
+        return findTransactionsInPeriod(transactions, startDate, endDate).stream()
                 .filter(t -> t.getAmount() < 0)
                 .sorted(Comparator.comparing(Transaction::getAmount))
                 .limit(limit)
                 .collect(Collectors.toList());
     }
 
-    public List<Transaction> findSmallestExpensesByPeriod(LocalDate startDate, LocalDate endDate, int limit) {
-        return findTransactionsInPeriod(startDate, endDate).stream()
+    public static List<Transaction> findSmallestExpensesByPeriod(List<Transaction> transactions, LocalDate startDate, LocalDate endDate, int limit) {
+        return findTransactionsInPeriod(transactions, startDate, endDate).stream()
                 .filter(t -> t.getAmount() < 0)
                 .sorted(Comparator.comparing(Transaction::getAmount).reversed())
                 .limit(limit)
                 .collect(Collectors.toList());
     }
 
-    public Map<String, Double> getExpenseSummaryByCategory() {
+    public static Map<String, Double> getExpenseSummaryByCategory(List<Transaction> transactions) {
         return transactions.stream()
                 .filter(t -> t.getAmount() < 0)
                 .collect(Collectors.groupingBy(
@@ -87,7 +84,7 @@ public class TransactionAnalyzer {
                 ));
     }
 
-    public Map<String, Double> getExpenseSummaryByMonth() {
+    public static Map<String, Double> getExpenseSummaryByMonth(List<Transaction> transactions) {
         return transactions.stream()
                 .filter(t -> t.getAmount() < 0)
                 .collect(Collectors.groupingBy(

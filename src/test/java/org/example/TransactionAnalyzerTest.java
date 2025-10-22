@@ -1,11 +1,12 @@
 package org.example;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 class MockDataReader implements DataReader {
     private List<String> lines;
@@ -20,7 +21,9 @@ class MockDataReader implements DataReader {
     }
 }
 
+
 class TransactionAnalyzerTest {
+
     @Test
     public void testCalculateTotalBalance() {
         Transaction transaction1 = new Transaction("01-01-2023", 100.0, "Дохід");
@@ -28,9 +31,7 @@ class TransactionAnalyzerTest {
         Transaction transaction3 = new Transaction("03-01-2023", 150.0, "Дохід");
         List<Transaction> transactions = Arrays.asList(transaction1, transaction2, transaction3);
 
-        TransactionAnalyzer analyzer = new TransactionAnalyzer(transactions);
-
-        double result = analyzer.calculateTotalBalance();
+        double result = TransactionAnalyzer.calculateTotalBalance(transactions);
 
         assertEquals(200.0, result, "Розрахунок загального балансу неправильний");
     }
@@ -42,13 +43,11 @@ class TransactionAnalyzerTest {
         Transaction transaction3 = new Transaction("05-03-2023", 100.0, "Дохід");
         List<Transaction> transactions = Arrays.asList(transaction1, transaction2, transaction3);
 
-        TransactionAnalyzer analyzer = new TransactionAnalyzer(transactions);
+        int countFeb = TransactionAnalyzer.countTransactionsByMonth(transactions, "02-2023");
+        int countMar = TransactionAnalyzer.countTransactionsByMonth(transactions, "03-2023");
 
-        int countFeb = analyzer.countTransactionsByMonth("02-2023");
-        int countMar = analyzer.countTransactionsByMonth("03-2023");
-
-        Assertions.assertEquals(2, countFeb, "Кількість транзакцій за лютий неправильна");
-        Assertions.assertEquals(1, countMar, "Кількість транзакцій за березень неправильна");
+        assertEquals(2, countFeb, "Кількість транзакцій за лютий неправильна");
+        assertEquals(1, countMar, "Кількість транзакцій за березень неправильна");
     }
 
     @Test
@@ -62,9 +61,8 @@ class TransactionAnalyzerTest {
 
         DataReader mockReader = new MockDataReader(csvLines);
         TransactionProcessor processor = new TransactionProcessor();
-        TransactionCSVReader csvReader = new TransactionCSVReader(mockReader, processor);
 
-        List<Transaction> transactions = csvReader.readTransactions("dummy/path");
+        List<Transaction> transactions = TransactionCSVReader.readTransactions("dummy/path", mockReader, processor);
 
         assertNotNull(transactions, "Список транзакцій не повинен бути null");
         assertEquals(3, transactions.size(), "Кількість зчитаних транзакцій неправильна");
@@ -89,17 +87,12 @@ class TransactionAnalyzerTest {
                 new Transaction("12-01-2023", -5.0, "Жуйка")
         );
 
-        TransactionAnalyzer analyzer = new TransactionAnalyzer(transactions);
-
-        List<Transaction> topExpenses = analyzer.findTopExpenses();
+        List<Transaction> topExpenses = TransactionAnalyzer.findTopExpenses(transactions);
 
         assertNotNull(topExpenses, "Список не повинен бути null");
         assertEquals(10, topExpenses.size(), "Має бути рівно 10 найбільших витрат");
-
         assertEquals(-2000.0, topExpenses.get(0).getAmount(), "Найбільша витрата - оренда (-2000)");
         assertEquals(-1200.0, topExpenses.get(1).getAmount(), "Друга найбільша витрата - подарунок (-1200)");
-
         assertEquals(-10.0, topExpenses.get(9).getAmount(), "Десята найбільша витрата - дрібниці (-10.0)");
     }
 }
-

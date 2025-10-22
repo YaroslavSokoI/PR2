@@ -11,32 +11,29 @@ public class Main {
         DataReader reader = new URLDataReader();
         TransactionProcessor processor = new TransactionProcessor();
 
-        TransactionCSVReader csvReader = new TransactionCSVReader(reader, processor);
-        List<Transaction> transactions = csvReader.readTransactions(filePath);
+        List<Transaction> transactions = TransactionCSVReader.readTransactions(filePath, reader, processor);
 
-        TransactionAnalyzer analyzer = new TransactionAnalyzer(transactions);
-        TransactionReportGenerator reportGenerator = new TransactionReportGenerator();
+        double totalBalance = TransactionAnalyzer.calculateTotalBalance(transactions);
+        TransactionReportGenerator.printBalanceReport(totalBalance);
 
-        double totalBalance = analyzer.calculateTotalBalance();
-        reportGenerator.printBalanceReport(totalBalance);
         String monthYear = "01-2024";
-        int transactionsCount = analyzer.countTransactionsByMonth(monthYear);
-        reportGenerator.printTransactionsCountByMonth(monthYear, transactionsCount);
+        int transactionsCount = TransactionAnalyzer.countTransactionsByMonth(transactions, monthYear);
+        TransactionReportGenerator.printTransactionsCountByMonth(monthYear, transactionsCount);
 
-        List<Transaction> topExpenses = analyzer.findTopExpenses();
-        reportGenerator.printTopExpensesReport(topExpenses);
+        List<Transaction> topExpenses = TransactionAnalyzer.findTopExpenses(transactions);
+        TransactionReportGenerator.printTopExpensesReport(topExpenses);
 
         System.out.println("\n--- Аналіз за період ---");
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 1, 15);
 
         System.out.println("Найбільші витрати з " + startDate + " по " + endDate + ":");
-        List<Transaction> largestByPeriod = analyzer.findLargestExpensesByPeriod(startDate, endDate, 5);
+        List<Transaction> largestByPeriod = TransactionAnalyzer.findLargestExpensesByPeriod(transactions, startDate, endDate, 5);
         largestByPeriod.forEach(t -> System.out.println(t.getDate() + ": " + t.getDescription() + " (" + t.getAmount() + ")"));
 
-        Map<String, Double> summaryByCategory = analyzer.getExpenseSummaryByCategory();
-        Map<String, Double> summaryByMonth = analyzer.getExpenseSummaryByMonth();
+        Map<String, Double> summaryByCategory = TransactionAnalyzer.getExpenseSummaryByCategory(transactions);
+        Map<String, Double> summaryByMonth = TransactionAnalyzer.getExpenseSummaryByMonth(transactions);
 
-        reportGenerator.printExpenseSummaryReport(summaryByCategory, summaryByMonth, 1000.0);
+        TransactionReportGenerator.printExpenseSummaryReport(summaryByCategory, summaryByMonth, 1000.0);
     }
 }
