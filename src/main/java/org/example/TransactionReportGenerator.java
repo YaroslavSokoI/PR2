@@ -1,6 +1,8 @@
 package org.example;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Collections;
 
 public class TransactionReportGenerator {
     public void printBalanceReport(double totalBalance) {
@@ -16,5 +18,34 @@ public class TransactionReportGenerator {
         for (Transaction expense : topExpenses) {
             System.out.println(expense.getDescription() + ": " + expense.getAmount());
         }
+    }
+
+    public void printExpenseSummaryReport(Map<String, Double> byCategory, Map<String, Double> byMonth, double symbolValue) {
+        System.out.println("\n--- Текстовий звіт по витратах ---");
+        System.out.println("Кожен символ (*) = " + symbolValue + " грн.");
+
+        System.out.println("\nВитрати за категоріями:");
+        for (Map.Entry<String, Double> entry : byCategory.entrySet()) {
+            String category = entry.getKey();
+            double amount = entry.getValue();
+            String stars = generateStars(amount, symbolValue);
+            System.out.printf("%-20s | %10.2f | %s\n", category, amount, stars);
+        }
+
+        System.out.println("\nВитрати за місяцями:");
+        for (Map.Entry<String, Double> entry : byMonth.entrySet()) {
+            String month = entry.getKey();
+            double amount = entry.getValue();
+            String stars = generateStars(amount, symbolValue);
+            System.out.printf("%-10s | %10.2f | %s\n", month, amount, stars);
+        }
+    }
+
+    private String generateStars(double amount, double symbolValue) {
+        long starCount = Math.round(Math.abs(amount) / symbolValue);
+        if (starCount == 0 && Math.abs(amount) > 0) {
+            starCount = 1;
+        }
+        return String.join("", Collections.nCopies((int) starCount, "*"));
     }
 }

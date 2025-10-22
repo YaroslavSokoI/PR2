@@ -1,6 +1,8 @@
 package org.example;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
@@ -23,5 +25,18 @@ public class Main {
 
         List<Transaction> topExpenses = analyzer.findTopExpenses();
         reportGenerator.printTopExpensesReport(topExpenses);
+
+        System.out.println("\n--- Аналіз за період ---");
+        LocalDate startDate = LocalDate.of(2024, 1, 1);
+        LocalDate endDate = LocalDate.of(2024, 1, 15);
+
+        System.out.println("Найбільші витрати з " + startDate + " по " + endDate + ":");
+        List<Transaction> largestByPeriod = analyzer.findLargestExpensesByPeriod(startDate, endDate, 5);
+        largestByPeriod.forEach(t -> System.out.println(t.getDate() + ": " + t.getDescription() + " (" + t.getAmount() + ")"));
+
+        Map<String, Double> summaryByCategory = analyzer.getExpenseSummaryByCategory();
+        Map<String, Double> summaryByMonth = analyzer.getExpenseSummaryByMonth();
+
+        reportGenerator.printExpenseSummaryReport(summaryByCategory, summaryByMonth, 1000.0);
     }
 }

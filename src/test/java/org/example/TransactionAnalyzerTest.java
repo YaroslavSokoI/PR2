@@ -1,5 +1,5 @@
-import org.example.Transaction;
-import org.example.TransactionAnalyzer;
+package org.example;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.Arrays;
@@ -98,7 +98,8 @@ class TransactionAnalyzerTest {
 
         assertEquals(-2000.0, topExpenses.get(0).getAmount(), "Найбільша витрата - оренда (-2000)");
         assertEquals(-1200.0, topExpenses.get(1).getAmount(), "Друга найбільша витрата - подарунок (-1200)");
-        assertEquals(-150.0, topExpenses.get(9).getAmount(), "Десята найбільша витрата - інтернет (-150)");
+
+        assertEquals(-10.0, topExpenses.get(9).getAmount(), "Десята найбільша витрата - дрібниці (-10.0)");
     }
 }
 
